@@ -5,6 +5,8 @@ from .scheduler import Scheduler
 from ..h_ttp.request import Request
 from ..middleware.spidermiddleware import Spidermiddleware
 from ..middleware.downloadermiddleware import Downloadermiddleware
+from ..utilis.log import logger
+from datetime import datetime
 
 
 class Engine(object):
@@ -18,7 +20,14 @@ class Engine(object):
         self.spidermoddleware = Spidermiddleware()
 
     def start(self):
-        return self.__start()
+        start = datetime.now()
+        logger.info('开始时间{}'.format(start))
+        self.__start()
+        end = datetime.now()
+        logger.info('结束时间{}'.format(end))
+        logger.info('总耗时{}'.format((end-start).total_seconds()))
+
+
 
     def __start(self):
         request = self.spider.start_request()
