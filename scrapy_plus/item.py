@@ -1,4 +1,4 @@
-class item(object):
+class Item(object):
     def __init__(self, data):
         self.__data = data
     @property
