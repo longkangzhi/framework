@@ -30,9 +30,10 @@ class Engine(object):
 
 
     def __start(self):
-        request = self.spider.start_request()
-        request = self.spidermoddleware.process_request(request)
-        self.scheduler.add_request(request)
+        for request in self.spider.start_request():
+        # request = self.spider.start_request()
+            request = self.spidermoddleware.process_request(request)
+            self.scheduler.add_request(request)
         request = self.scheduler.get_request()
         request = self.downloadermiddleware.process_request(request)
         response = self.downloader.get_response(request)
