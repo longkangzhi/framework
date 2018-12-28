@@ -1,4 +1,4 @@
-from queue import Queue
+from six.moves.queue import Queue
 
 class Scheduler(object):
     def __init__(self):
