@@ -8,5 +8,5 @@ class Spider(object):
         return Request(self.start_url) #使url成为一个对象
 
     def parse(self, response):
-        print(response.text)
+        # print(response.body.decode())
         return Item(response.url)

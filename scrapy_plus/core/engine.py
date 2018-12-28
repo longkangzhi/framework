@@ -22,7 +22,7 @@ class Engine(object):
         request = self.scheduler.get_request()
         response = self.downloader.get_response(request)
         result = self.spider.parse(response)
-        if isinstance(request, Request):
+        if isinstance(result, Request):
             self.scheduler.add_request(result)
 
         else:
