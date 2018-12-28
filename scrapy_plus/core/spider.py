@@ -1,6 +1,6 @@
 from ..h_ttp.request import Request
 from ..item import Item
-class spider(object):
+class Spider(object):
     # def __init__(self):
     start_url = 'http://www.itcast.cn'
 
