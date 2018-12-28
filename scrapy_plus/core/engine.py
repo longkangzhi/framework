@@ -11,8 +11,8 @@ from datetime import datetime
 
 class Engine(object):
 
-    def __init__(self):
-        self.spider = Spider()
+    def __init__(self,spider):
+        self.spider = spider
         self.downloader = Download()
         self.pipeline = Pipeline()
         self.scheduler = Scheduler()
