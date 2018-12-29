@@ -1,5 +1,6 @@
 from scrapy_plus.core.spider import Spider
 from scrapy_plus.h_ttp.request import Request
+from scrapy_plus.item import Item
 
 
 class DoubanSpider(Spider):
@@ -8,3 +9,14 @@ class DoubanSpider(Spider):
         for i in range(0, 250, 25):
             url = url_pattern.format(i)
             yield Request(url)
+
+    def parse(self, response):
+        a_s = response.xpath('//div[@class="hd"]/a')
+        for a in a_s:
+            data ={}
+            data['moovie_url'] = a.xpath('./span[1]/text()')[0]
+            data['movie_url'] = a.xpath('./@href')[0]
+            print(data)
+
+
+        return Item(response.url)
