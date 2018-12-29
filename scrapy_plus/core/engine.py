@@ -18,6 +18,7 @@ class Engine(object):
         self.scheduler = Scheduler()
         self.downloadermiddleware = Downloadermiddleware()
         self.spidermoddleware = Spidermiddleware()
+        self.total_response_nums = 0
 
     def start(self):
         start = datetime.now()
@@ -30,10 +31,14 @@ class Engine(object):
 
 
     def __start(self):
-        for request in self.spider.start_request():
-        # request = self.spider.start_request()
-            request = self.spidermoddleware.process_request(request)
-            self.scheduler.add_request(request)
+        self.__add_start_requests()
+        while True:
+            self.__execute_request_response_item()
+            if self.total_response_nums >= self.scheduler.total_request_nums:
+                break
+
+    def __execute_request_response_item(self):
+        # self.__add_start_requests()
         request = self.scheduler.get_request()
         request = self.downloadermiddleware.process_request(request)
         response = self.downloader.get_response(request)
@@ -46,6 +51,14 @@ class Engine(object):
 
         else:
             self.pipeline.process_item(result, self.spider)
+
+        self.total_response_nums += 1
+
+    def __add_start_requests(self):
+        for request in self.spider.start_request():
+            # request = self.spider.start_request()
+            request = self.spidermoddleware.process_request(request)
+            self.scheduler.add_request(request)
 
 
 
