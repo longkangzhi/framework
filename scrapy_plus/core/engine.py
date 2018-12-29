@@ -19,6 +19,7 @@ class Engine(object):
         self.scheduler = Scheduler()
         self.downloadermiddleware = Downloadermiddleware()
         self.spidermoddleware = Spidermiddleware()
+        # self.callback = Request.callback
         self.total_response_nums = 0
 
     def start(self):
@@ -43,9 +44,13 @@ class Engine(object):
         request = self.scheduler.get_request()
         request = self.downloadermiddleware.process_request(request)
         response = self.downloader.get_response(request)
+        response.meta = request.meta
         response = self.downloadermiddleware.process_response(response)
         response = self.spidermoddleware.process_response(response)
-        results = self.spider.parse(response)
+        if request.callback:
+            results = request.callback(response)
+        else:
+            results = self.spider.parse(response)
         if not isinstance(results, Iterable):
             results = [results]
         for result in results:

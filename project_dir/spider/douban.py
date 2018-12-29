@@ -16,7 +16,11 @@ class DoubanSpider(Spider):
             data ={}
             data['moovie_url'] = a.xpath('./span[1]/text()')[0]
             data['movie_url'] = a.xpath('./@href')[0]
-            yield Item(data)
+            yield Request(data['movie_url'], callback=self.parse_detail, meta={'data': data})
 
 
         # return Item(response.url)
+    def parse_detail(self, response):
+        data = response.meta['data']
+        data['movie_length'] = response.xpath('//span[@property="v:runtime"]/text()')[0]
+        yield Item(data)
