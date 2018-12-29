@@ -7,7 +7,7 @@ class BaiduPipeline(object):
         # print(spider.name)
         if spider.name == BaiduSpider.name:
             print('百度管道1: {}'.format(item.data))
-        print(item)
+        # print(item)
         return item
 class BaiduPipeline2(object):
     def process_item(self, item, spider):
@@ -19,8 +19,8 @@ class BaiduPipeline2(object):
 class DoubanPipeline(object):
     def process_item(self, item, spider):
         if spider.name == DoubanSpider.name:
-            print(spider.name)
-            print(DoubanSpider.name)
-            print(item)
+            # print(spider.name)
+            # print(DoubanSpider.name)
+            # print(item)
             print('豆瓣管道: {}'.format(item.data))
         return item

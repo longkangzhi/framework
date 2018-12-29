@@ -1,3 +1,7 @@
+import importlib
+
+from scrapy_plus.conf import settings
+
 from .downloader import Download
 from collections import  Iterable
 from .spider import Spider
@@ -12,15 +16,43 @@ from datetime import datetime
 
 class Engine(object):
 
-    def __init__(self, spiders, pipelines, downloadmiddlewares,spidermiddlewares ):
-        self.spiders = spiders
+    # def __init__(self, spiders, pipelines, downloadmiddlewares,spidermiddlewares ):
+    #     self.spiders = spiders
+    #     self.downloader = Download()
+    #     self.pipelines = pipelines
+    #     self.scheduler = Scheduler()
+    #     self.downloadermiddlewares = downloadmiddlewares
+    #     self.spidermiddlewares= spidermiddlewares
+    #     # self.callback = Request.callback
+    #     self.total_response_nums = 0
+
+    def __init__(self):
+        self.spiders = self.__auto_import(settings.SPIDERS, isSpider=True)
         self.downloader = Download()
-        self.pipelines = pipelines
+        self.pipelines = self.__auto_import(settings.PIPELINES)
         self.scheduler = Scheduler()
-        self.downloadermiddlewares = downloadmiddlewares
-        self.spidermiddlewares= spidermiddlewares
+        self.downloadermiddlewares = self.__auto_import(settings.DOWNLOADER_MIDDLERWARE)
+        self.spidermiddlewares = self.__auto_import(settings.SPIDER_MIDDLEWARE)
         # self.callback = Request.callback
         self.total_response_nums = 0
+
+
+    def __auto_import(self,full_names, isSpider=False):
+        results = {} if isSpider else []
+        for full_name in full_names:
+            module_name, class_name = full_name.rsplit('.', maxsplit=1)
+            module = importlib.import_module(module_name)
+            cls = getattr(module, class_name)
+            instance = cls()
+            if isSpider:
+                results[instance.name] = instance
+            else:
+                results.append(instance)
+        return results
+
+
+
+
 
     def start(self):
         start = datetime.now()
