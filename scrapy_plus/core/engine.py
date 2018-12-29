@@ -1,4 +1,5 @@
 from .downloader import Download
+from collections import  Iterable
 from .spider import Spider
 from .pipeline import Pipeline
 from .scheduler import Scheduler
@@ -44,13 +45,17 @@ class Engine(object):
         response = self.downloader.get_response(request)
         response = self.downloadermiddleware.process_response(response)
         response = self.spidermoddleware.process_response(response)
-        result = self.spider.parse(response)
-        if isinstance(result, Request):
-            result = self.spidermoddleware.process_request(result)
-            self.scheduler.add_request(result)
+        results = self.spider.parse(response)
+        if not isinstance(results, Iterable):
+            results = [results]
+        for result in results:
 
-        else:
-            self.pipeline.process_item(result, self.spider)
+            if isinstance(result, Request):
+                result = self.spidermoddleware.process_request(result)
+                self.scheduler.add_request(result)
+
+            else:
+                self.pipeline.process_item(result, self.spider)
 
         self.total_response_nums += 1
 
