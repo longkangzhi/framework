@@ -1,6 +1,7 @@
 from ..h_ttp.request import Request
 from ..item import Item
 class Spider(object):
+    name = 'spider'
     # def __init__(self):
     start_urls = []
 

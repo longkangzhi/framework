@@ -4,6 +4,7 @@ from scrapy_plus.item import Item
 
 
 class DoubanSpider(Spider):
+    name = 'douban'
     def start_request(self):
         url_pattern = 'https://movie.douban.com/top250?start={}&filter='
         for i in range(0, 250, 25):
@@ -14,9 +15,10 @@ class DoubanSpider(Spider):
         a_s = response.xpath('//div[@class="hd"]/a')
         for a in a_s:
             data ={}
-            data['moovie_url'] = a.xpath('./span[1]/text()')[0]
+            data['movie_name'] = a.xpath('./span[1]/text()')[0]
             data['movie_url'] = a.xpath('./@href')[0]
-            yield Request(data['movie_url'], callback=self.parse_detail, meta={'data': data})
+            yield Item(data)
+            # yield Request(data['movie_url'], callback=self.parse_detail, meta={'data': data})
 
 
         # return Item(response.url)

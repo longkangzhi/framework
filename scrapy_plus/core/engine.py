@@ -12,10 +12,10 @@ from datetime import datetime
 
 class Engine(object):
 
-    def __init__(self,spider):
-        self.spider = spider
+    def __init__(self, spiders, pipelines):
+        self.spiders = spiders
         self.downloader = Download()
-        self.pipeline = Pipeline()
+        self.pipelines = pipelines
         self.scheduler = Scheduler()
         self.downloadermiddleware = Downloadermiddleware()
         self.spidermoddleware = Spidermiddleware()
@@ -42,6 +42,7 @@ class Engine(object):
     def __execute_request_response_item(self):
         # self.__add_start_requests()
         request = self.scheduler.get_request()
+        spider = self.spiders[request.spider_name]
         request = self.downloadermiddleware.process_request(request)
         response = self.downloader.get_response(request)
         response.meta = request.meta
@@ -50,25 +51,29 @@ class Engine(object):
         if request.callback:
             results = request.callback(response)
         else:
-            results = self.spider.parse(response)
+            results = spider.parse(response)
         if not isinstance(results, Iterable):
             results = [results]
         for result in results:
 
             if isinstance(result, Request):
                 result = self.spidermoddleware.process_request(result)
+                result.spider_name = spider.name
                 self.scheduler.add_request(result)
 
             else:
-                self.pipeline.process_item(result, self.spider)
+                for pipeline in self.pipelines:
+                    result = pipeline.process_item(result, spider)#result = Item(data)
 
         self.total_response_nums += 1
 
     def __add_start_requests(self):
-        for request in self.spider.start_request():
-            # request = self.spider.start_request()
-            request = self.spidermoddleware.process_request(request)
-            self.scheduler.add_request(request)
+        for spider_name, spider in self.spiders.items():
+            for request in spider.start_request():
+                request.spider_name = spider_name
+                # request = self.spider.start_request()
+                request = self.spidermoddleware.process_request(request)
+                self.scheduler.add_request(request)
 
 
 
