@@ -1,3 +1,5 @@
+from middleware.downloadermiddleware import Downloadermiddleware1, Downloadermiddleware2
+from middleware.spidermiddleware import Spidermiddleware1, Spidermiddleware2
 from pipelines import BaiduPipeline, DoubanPipeline, BaiduPipeline2
 from scrapy_plus.core.engine import Engine
 from spider.baidu import BaiduSpider
@@ -15,5 +17,15 @@ if __name__ == "__main__":
         BaiduPipeline2(),
         DoubanPipeline()
     ]
-    engine = Engine(spiders, pipelines)
+
+    downloadmiddlewares = [
+        Downloadermiddleware1(),
+        Downloadermiddleware2()
+    ]
+
+    spidermiddlewares =[
+        Spidermiddleware1(),
+        Spidermiddleware2()
+    ]
+    engine = Engine(spiders, pipelines, downloadmiddlewares, spidermiddlewares)
     engine.start()

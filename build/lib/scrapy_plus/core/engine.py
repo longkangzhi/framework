@@ -12,13 +12,13 @@ from datetime import datetime
 
 class Engine(object):
 
-    def __init__(self, spiders, pipelines):
+    def __init__(self, spiders, pipelines, downloadmiddlewares,spidermiddlewares ):
         self.spiders = spiders
         self.downloader = Download()
         self.pipelines = pipelines
         self.scheduler = Scheduler()
-        self.downloadermiddleware = Downloadermiddleware()
-        self.spidermoddleware = Spidermiddleware()
+        self.downloadermiddlewares = downloadmiddlewares
+        self.spidermiddlewares= spidermiddlewares
         # self.callback = Request.callback
         self.total_response_nums = 0
 
@@ -43,11 +43,14 @@ class Engine(object):
         # self.__add_start_requests()
         request = self.scheduler.get_request()
         spider = self.spiders[request.spider_name]
-        request = self.downloadermiddleware.process_request(request)
+        for downloadermiddleware in self.downloadermiddlewares:
+            request = downloadermiddleware.process_request(request)
         response = self.downloader.get_response(request)
         response.meta = request.meta
-        response = self.downloadermiddleware.process_response(response)
-        response = self.spidermoddleware.process_response(response)
+        for downloadermiddleware in self.downloadermiddlewares:
+            response = downloadermiddleware.process_response(response)
+        for spidermiddleware in self.spidermiddlewares:
+            response = spidermiddleware.process_response(response)
         if request.callback:
             results = request.callback(response)
         else:
@@ -57,13 +60,14 @@ class Engine(object):
         for result in results:
 
             if isinstance(result, Request):
-                result = self.spidermoddleware.process_request(result)
+                for spidermiddleware in self.spidermiddlewares:
+                    result = spidermiddleware.process_request(result)
                 result.spider_name = spider.name
                 self.scheduler.add_request(result)
 
             else:
                 for pipeline in self.pipelines:
-                    result = pipeline.process_item(result, spider)
+                    result = pipeline.process_item(result, spider)#result = Item(data)
 
         self.total_response_nums += 1
 
@@ -72,7 +76,8 @@ class Engine(object):
             for request in spider.start_request():
                 request.spider_name = spider_name
                 # request = self.spider.start_request()
-                request = self.spidermoddleware.process_request(request)
+                for spidermiddleware in  self.spidermiddlewares:
+                    request = spidermiddleware.process_request(request)
                 self.scheduler.add_request(request)
 
 
