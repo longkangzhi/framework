@@ -1,7 +1,7 @@
 import importlib
 
 from scrapy_plus.conf import settings
-
+from multiprocessing.dummy import Pool
 from .downloader import Download
 from collections import  Iterable
 from .spider import Spider
@@ -11,6 +11,7 @@ from ..h_ttp.request import Request
 from ..middleware.spidermiddleware import Spidermiddleware
 from ..middleware.downloadermiddleware import Downloadermiddleware
 from ..utilis.log import logger
+import time
 from datetime import datetime
 
 
@@ -34,6 +35,7 @@ class Engine(object):
         self.downloadermiddlewares = self.__auto_import(settings.DOWNLOADER_MIDDLERWARE)
         self.spidermiddlewares = self.__auto_import(settings.SPIDER_MIDDLEWARE)
         # self.callback = Request.callback
+        self.pool = Pool()
         self.total_response_nums = 0
 
 
@@ -70,11 +72,17 @@ class Engine(object):
         logger.info('响应数量 {}'.format(self.total_response_nums))
 
 
+    def __execute_callback(self, item):
+        self.pool.apply_async(self.__execute_request_response_item, callback=self.__execute_callback, )
 
     def __start(self):
-        self.__add_start_requests()
+        self.pool.apply_async(self.__add_start_requests)
+        # self.__add_start_requests()
+        self.pool.apply_async(self.__execute_request_response_item, callback=self.__execute_callback,)
+        time.sleep(0.1)
         while True:
-            self.__execute_request_response_item()
+            # self.__execute_request_response_item()
+            time.sleep(0.1)
             if self.total_response_nums >= self.scheduler.total_request_nums:
                 break
 
@@ -115,7 +123,7 @@ class Engine(object):
             for request in spider.start_request():
                 request.spider_name = spider_name
                 # request = self.spider.start_request()
-                for spidermiddleware in  self.spidermiddlewares:
+                for spidermiddleware in self.spidermiddlewares:
                     request = spidermiddleware.process_request(request)
                 self.scheduler.add_request(request)
 
