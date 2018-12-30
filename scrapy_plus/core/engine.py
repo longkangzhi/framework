@@ -71,15 +71,20 @@ class Engine(object):
         logger.info('过滤数量 {}'.format(self.scheduler.filter_request_nums))
         logger.info('响应数量 {}'.format(self.total_response_nums))
 
+    def __error_callback(self, ex):
+        try:
+            raise ex
+        except Exception as e :
+            logger.exception(e)
 
     def __execute_callback(self, item):
-        self.pool.apply_async(self.__execute_request_response_item, callback=self.__execute_callback, )
+        self.pool.apply_async(self.__execute_request_response_item, callback=self.__execute_callback, error_callback=self.__error_callback )
 
     def __start(self):
-        self.pool.apply_async(self.__add_start_requests)
+        self.pool.apply_async(self.__add_start_requests, error_callback=self.__error_callback)
         # self.__add_start_requests()
         for i in range (settings.ASYNC_COUNT):
-            self.pool.apply_async(self.__execute_request_response_item, callback=self.__execute_callback,)
+            self.pool.apply_async(self.__execute_request_response_item, callback=self.__execute_callback, error_callback=self.__error_callback)
         time.sleep(0.1)
         while True:
             # self.__execute_request_response_item()
@@ -89,6 +94,7 @@ class Engine(object):
 
     def __execute_request_response_item(self):
         # self.__add_start_requests()
+        # 1/0
         request = self.scheduler.get_request()
         spider = self.spiders[request.spider_name]
         for downloadermiddleware in self.downloadermiddlewares:
