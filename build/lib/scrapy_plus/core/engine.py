@@ -18,8 +18,10 @@ from ..middleware.downloadermiddleware import Downloadermiddleware
 from ..utilis.log import logger
 import time
 from datetime import datetime
-
-
+if settings.SCHEDULER_PERSIST:
+    from scrapy_plus.utilis.stats_collector import ReidsStatsCollector as StatsCollector
+else:
+    from scrapy_plus.utilis.stats_collector import NormalStatsCollector as StatsCollector
 
 class Engine(object):
 
@@ -37,12 +39,14 @@ class Engine(object):
         self.spiders = self.__auto_import(settings.SPIDERS, isSpider=True)
         self.downloader = Download()
         self.pipelines = self.__auto_import(settings.PIPELINES)
-        self.scheduler = Scheduler()
+        self.stats_collectior = StatsCollector()
+        self.scheduler = Scheduler(self.stats_collectior)
         self.downloadermiddlewares = self.__auto_import(settings.DOWNLOADER_MIDDLERWARE)
         self.spidermiddlewares = self.__auto_import(settings.SPIDER_MIDDLEWARE)
         # self.callback = Request.callback
         self.pool = Pool()
-        self.total_response_nums = 0
+        # self.total_response_nums = 0
+        # self.finshed_start_requests_spider_count = 0
 
 
     def __auto_import(self,full_names, isSpider=False):
@@ -73,10 +77,12 @@ class Engine(object):
         end = datetime.now()
         logger.info('结束时间{}'.format(end))
         logger.info('总耗时{}'.format((end-start).total_seconds()))
-        logger.info('入队数量 {}'.format(self.scheduler.total_request_nums))
-        logger.info('过滤数量 {}'.format(self.scheduler.filter_request_nums))
-        logger.info('响应数量 {}'.format(self.total_response_nums))
-
+        logger.info('入队数量 {}'.format(self.stats_collectior.request_nums))
+        logger.info('过滤数量 {}'.format(self.stats_collectior.repeat_request_nums))
+        logger.info('响应数量 {}'.format(self.stats_collectior.response_nums))
+        logger.info('起始请求数量 {}'.format(self.stats_collectior.start_request_nums))
+        if settings.SCHEDULER_PERSIST:
+            self.stats_collectior.clear()
     def __error_callback(self, ex):
         try:
             raise ex
@@ -95,7 +101,7 @@ class Engine(object):
         while True:
             # self.__execute_request_response_item()
             time.sleep(0.1)
-            if self.total_response_nums >= self.scheduler.total_request_nums:
+            if self.stats_collectior.response_nums >= self.stats_collectior.request_nums:
                 break
 
     def __execute_request_response_item(self):
@@ -129,7 +135,8 @@ class Engine(object):
                 for pipeline in self.pipelines:
                     result = pipeline.process_item(result, spider)#result = Item(data)
 
-        self.total_response_nums += 1
+        # self.total_response_nums += 1
+        self.stats_collectior.incr(self.stats_collectior.response_nums_key)
 
     def __add_start_requests(self):
         for spider_name, spider in self.spiders.items():
@@ -139,6 +146,7 @@ class Engine(object):
                 for spidermiddleware in self.spidermiddlewares:
                     request = spidermiddleware.process_request(request)
                 self.scheduler.add_request(request)
+                self.stats_collectior.incr(self.stats_collectior.start_request_nums_key)
 
 
 
