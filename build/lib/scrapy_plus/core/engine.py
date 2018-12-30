@@ -1,7 +1,12 @@
+
+
 import importlib
 
 from scrapy_plus.conf import settings
-from multiprocessing.dummy import Pool
+if settings.ASYNC_TYPE.lower() == 'thread':
+   from multiprocessing.dummy import Pool
+else:
+    from ..asyn.coroutine import Pool
 from .downloader import Download
 from collections import  Iterable
 from .spider import Spider

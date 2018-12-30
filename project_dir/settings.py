@@ -19,3 +19,4 @@ PIPELINES = [
 #     'middleware.spidermiddleware.Spidermiddleware1',
 #     'middleware.spidermiddleware.Spidermiddleware2'
 # ]
+ASYNC_TYPE='123'
