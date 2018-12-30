@@ -1,17 +1,24 @@
 import hashlib
 
 import six
-from six.moves.queue import Queue
+from scrapy_plus.conf import settings
+# from six.moves.queue import Queue
 from w3lib.url import canonicalize_url
 
 from scrapy_plus.utilis.log import logger
-
+if settings.SCHEDULER_PERSIST:
+    from scrapy_plus.utilis.queue import Queue
+    from scrapy_plus.utilis.set import RedisFilterContainer as FilterContainer
+else:
+    from six.moves.queue import Queue
+    from scrapy_plus.utilis.set import NoramlFilterContainer as FilterContainer
 
 class Scheduler(object):
     def __init__(self):
         self.queue = Queue()
 
-        self.filter_containers = set()
+        self.filter_containers = FilterContainer()
+        # self.filter_containerss = set()
         self.total_request_nums = 0
         self.filter_request_nums = 0
 
@@ -28,9 +35,10 @@ class Scheduler(object):
 
     def reques_seen(self, request):
         fp = self.gen_fp(request)
-        if fp in self.filter_containers:
+        # if fp in self.filter_containers:
+        if self.filter_containers.exists(fp):
             return True
-        self.filter_containers.add(fp)
+        self.filter_containers.add_fp(fp)
         return False
 
 

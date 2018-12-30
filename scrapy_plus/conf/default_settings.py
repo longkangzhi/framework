@@ -22,3 +22,12 @@ SPIDER_MIDDLEWARE =[]
 ASYNC_COUNT = 5
 
 ASYNC_TYPE = 'thread'
+
+SCHEDULER_PERSIST = False
+
+# redis默认配置,默认为本机的redis
+REDIS_SET_NAME = 'scrapy_plus_fp_set' # fp集合
+REDIS_QUEUE_NAME = 'scrapy_plus_request_queue' # request队列
+REDIS_HOST = '127.0.0.1'
+REDIS_PORT = 6379
+REDIS_DB = 0

@@ -20,3 +20,5 @@ PIPELINES = [
 #     'middleware.spidermiddleware.Spidermiddleware2'
 # ]
 ASYNC_TYPE='123'
+
+SCHEDULER_PERSIST = True
