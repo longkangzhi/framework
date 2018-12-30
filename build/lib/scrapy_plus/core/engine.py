@@ -78,7 +78,8 @@ class Engine(object):
     def __start(self):
         self.pool.apply_async(self.__add_start_requests)
         # self.__add_start_requests()
-        self.pool.apply_async(self.__execute_request_response_item, callback=self.__execute_callback,)
+        for i in range (settings.ASYNC_COUNT):
+            self.pool.apply_async(self.__execute_request_response_item, callback=self.__execute_callback,)
         time.sleep(0.1)
         while True:
             # self.__execute_request_response_item()
