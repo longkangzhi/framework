@@ -57,10 +57,17 @@ class Engine(object):
     def start(self):
         start = datetime.now()
         logger.info('开始时间{}'.format(start))
+        logger.info('爬虫 {}'.format(settings.SPIDERS))
+        logger.info('管道 {}'.format(settings.PIPELINES))
+        logger.info('下载中间件 {}'.format(settings.DOWNLOADER_MIDDLERWARE))
+        logger.info('爬虫中间件 {}'.format(settings.SPIDER_MIDDLEWARE))
         self.__start()
         end = datetime.now()
         logger.info('结束时间{}'.format(end))
         logger.info('总耗时{}'.format((end-start).total_seconds()))
+        logger.info('入队数量 {}'.format(self.scheduler.total_request_nums))
+        logger.info('过滤数量 {}'.format(self.scheduler.filter_request_nums))
+        logger.info('响应数量 {}'.format(self.total_response_nums))
 
 
 
