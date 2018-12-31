@@ -47,6 +47,7 @@ class Engine(object):
         self.pool = Pool()
         # self.total_response_nums = 0
         # self.finshed_start_requests_spider_count = 0
+        self.finished_start_requests_spider_count = 0
 
 
     def __auto_import(self,full_names, isSpider=False):
@@ -102,6 +103,8 @@ class Engine(object):
         while True:
             # self.__execute_request_response_item()
             time.sleep(0.1)
+            if self.finished_start_requests_spider_count < len(self.spiders):
+                continue
             if self.stats_collectior.response_nums >= self.stats_collectior.request_nums:
                 break
 
@@ -150,7 +153,7 @@ class Engine(object):
                     request = spidermiddleware.process_request(request)
                 self.scheduler.add_request(request)
                 self.stats_collectior.incr(self.stats_collectior.start_request_nums_key)
-
+            self.finished_start_requests_spider_count += 1
 
 
 

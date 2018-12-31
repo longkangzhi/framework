@@ -1,6 +1,6 @@
 DEFAULT_LOG_FILENAME = 'longkangzhi.log'
 SPIDERS = [
-    'spider.sina.SinaSpider',
+    # 'spider.sina.SinaSpider',
     'spider.baidu.BaiduSpider',
     # 'spider.douban.DoubanSpider'
 
@@ -21,6 +21,6 @@ PIPELINES = [
 #     'middleware.spidermiddleware.Spidermiddleware1',
 #     'middleware.spidermiddleware.Spidermiddleware2'
 # ]
-ASYNC_TYPE='123'
+ASYNC_TYPE='coroutine'
 
 # SCHEDULER_PERSIST = True
