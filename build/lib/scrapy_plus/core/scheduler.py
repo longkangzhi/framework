@@ -22,6 +22,11 @@ class Scheduler(object):
         # self.total_request_nums = 0
         # self.filter_request_nums = 0
         self.states_collector = stats_collector
+
+    def clear(self):
+        if settings.SCHEDULER_PERSIST:
+            self.queue.clear()
+            self.filter_containers.clear()
     def add_request(self, request):
         if not request.dont_filter and self.reques_seen(request):
             logger.info('被过滤掉的请qiu {}'.format(request.url))

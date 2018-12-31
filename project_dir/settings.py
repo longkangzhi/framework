@@ -23,4 +23,6 @@ PIPELINES = [
 # ]
 ASYNC_TYPE='coroutine'
 
-# SCHEDULER_PERSIST = True
+SCHEDULER_PERSIST = True
+
+FP_PERSIST = False

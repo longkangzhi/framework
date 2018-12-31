@@ -85,6 +85,8 @@ class Engine(object):
         if settings.SCHEDULER_PERSIST:
             time.sleep(3)
             self.stats_collectior.clear()
+            if not settings.FP_PERSIST:
+                self.scheduler.clear()
     def __error_callback(self, ex):
         try:
             raise ex
