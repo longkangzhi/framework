@@ -23,7 +23,7 @@ class Scheduler(object):
         # self.filter_request_nums = 0
         self.states_collector = stats_collector
     def add_request(self, request):
-        if self.reques_seen(request):
+        if not request.dont_filter and self.reques_seen(request):
             logger.info('被过滤掉的请qiu {}'.format(request.url))
             # self.filter_request_nums += 1
             self.states_collector.incr(self.states_collector.repeat_request_nums_key)
@@ -31,6 +31,7 @@ class Scheduler(object):
             return
         self.queue.put(request)
         # self.total_request_nums += 1
+        logger.info('入队的请求：{}'.format(request.url))
         self.states_collector.incr(self.states_collector.request_nums_key)
 
     def get_request(self):
