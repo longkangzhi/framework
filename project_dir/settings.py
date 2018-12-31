@@ -1,8 +1,9 @@
 DEFAULT_LOG_FILENAME = 'longkangzhi.log'
 SPIDERS = [
+    'spider.sina.SinaSpider',
     'spider.baidu.BaiduSpider',
     # 'spider.douban.DoubanSpider'
-    'spider.sina.SinaSpider'
+
 ]
 
 PIPELINES = [

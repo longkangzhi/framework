@@ -141,6 +141,8 @@ class Engine(object):
 
     def __add_start_requests(self):
         for spider_name, spider in self.spiders.items():
+            self.pool.apply_async(self.__add_one_spider_start_requests, args=(spider, spider_name,), error_callback=self.__error_callback)
+    def __add_one_spider_start_requests(self, spider, spider_name):
             for request in spider.start_request():
                 request.spider_name = spider_name
                 # request = self.spider.start_request()
